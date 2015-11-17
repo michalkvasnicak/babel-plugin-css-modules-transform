@@ -10,6 +10,8 @@ This plugin is based on the fantastic [css-modules-require-hook](https://github.
 
 This plugin is experimental, pull requests are welcome.
 
+**Do not run this plugin as part of webpack frontend configuration. This plugin is intended only for backend compilation.**
+
 ## Example
 
 ```css
