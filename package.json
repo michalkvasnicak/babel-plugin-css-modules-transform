@@ -2,7 +2,7 @@
   "name": "babel-plugin-css-modules-transform",
   "version": "0.0.2",
   "description": "Transform required css modules so one can use generated class names.",
-  "main": "index.js",
+  "main": "build/index.js",
   "scripts": {
     "build": "node node_modules/.bin/babel src --ignore **/*.spec.js -d build",
     "lint": "node node_modules/.bin/eslint src",
