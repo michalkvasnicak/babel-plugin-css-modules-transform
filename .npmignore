@@ -1,4 +1,5 @@
 build
+src
 test
 scripts
 .babelrc
