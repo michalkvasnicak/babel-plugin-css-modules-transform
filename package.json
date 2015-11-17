@@ -1,0 +1,54 @@
+{
+  "name": "babel-plugin-css-modules-transform",
+  "version": "0.0.1",
+  "description": "Transform required css modules so one can use generated class names.",
+  "main": "index.js",
+  "scripts": {
+    "build": "node node_modules/.bin/babel src --ignore **/*.spec.js -d build",
+    "lint": "node node_modules/.bin/eslint src",
+    "test": "npm run lint && node node_modules/.bin/mocha --compilers js:babel-core/register 'test/**/*.spec.js'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michalkvasnicak/babel-plugin-css-modules-transform.git"
+  },
+  "keywords": [
+    "babel",
+    "css-modules",
+    "babel-plugin",
+    "plugin"
+  ],
+  "author": "Michal Kvasničák <michal.kvasnicak@gmail.com> (http://kvasnicak.info)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/michalkvasnicak/babel-plugin-css-modules-transform/issues"
+  },
+  "homepage": "https://github.com/michalkvasnicak/babel-plugin-css-modules-transform#readme",
+  "dependencies": {
+    "css-modules-require-hook": "^2.0.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.1.18",
+    "babel-core": "^6.1.21",
+    "babel-eslint": "^4.1.5",
+    "babel-plugin-transform-strict-mode": "^6.1.18",
+    "babel-plugin-transform-es2015-parameters": "^6.1.18",
+    "babel-plugin-transform-es2015-destructuring": "^6.1.18",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.1.18",
+    "babel-plugin-transform-object-rest-spread": "^6.1.18",
+    "babel-plugin-transform-es2015-spread": "^6.1.18",
+    "babel-plugin-transform-export-extensions": "^6.1.18",
+    "chai": "^3.4.1",
+    "eslint": "^1.9.0",
+    "eslint-config-airbnb-lite": "^1.0.0",
+    "mocha": "^2.3.4",
+    "postcss": "^5.x",
+    "postcss-modules-extract-imports": "^1.x",
+    "postcss-modules-local-by-default": "^1.x",
+    "postcss-modules-scope": "^1.x",
+    "postcss-modules-values": "^1.x"
+  },
+  "engines": {
+    "node": ">=4.0.0"
+  }
+}
