@@ -56,7 +56,25 @@ npm install --save-dev babel-plugin-css-modules-transform
 ```json
 {
     "plugins": [
-        ["css-modules-transform", { "generateScopedName": "[name]__[local]___[hash:base64:5]" }]
+        [
+            "css-modules-transform", { 
+                "generateScopedName": "[name]__[local]___[hash:base64:5]", // in case you don't want to use a function
+                "generateScopedName": "./path/to/module-exporting-a-function.js", // in case you want to use a function
+                "generateScopedName": "npm-module-name",
+                "preprocessCss": "./path/to/module-exporting-a-function.js",
+                "preprocessCss": "npm-module-name",
+                "processCss": "./path/to/module-exporting-a-function.js",
+                "processCss": "npm-module-name",
+                "append": [
+                    "npm-module-name",
+                    "./path/to/module-exporting-a-function.js"
+                ],
+                "prepend": [
+                    "npm-module-name",
+                    "./path/to/module-exporting-a-function.js"
+                ],
+            }
+        ]
     ]
 }
 ```
