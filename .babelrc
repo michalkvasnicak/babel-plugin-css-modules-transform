@@ -1,4 +1,5 @@
 {
+  "presets": ["es2015"],
   "plugins": [
     "transform-strict-mode",
     "transform-es2015-parameters",
