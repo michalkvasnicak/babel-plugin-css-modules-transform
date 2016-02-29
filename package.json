@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/michalkvasnicak/babel-plugin-css-modules-transform#readme",
   "dependencies": {
-    "css-modules-require-hook": "^2.0.2"
+    "css-modules-require-hook": "^3.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.1.18",
@@ -42,6 +42,8 @@
     "chai": "^3.4.1",
     "eslint": "^1.9.0",
     "eslint-config-airbnb-lite": "^1.0.0",
+    "gulp-babel": "^6.1.2",
+    "gulp-util": "^3.0.7",
     "mocha": "^2.3.4",
     "postcss": "^5.x",
     "postcss-modules-extract-imports": "^1.x",

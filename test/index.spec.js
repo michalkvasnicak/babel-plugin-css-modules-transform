@@ -1,7 +1,9 @@
 const babel = require('babel-core');
 import { expect } from 'chai';
-import { resolve } from 'path';
+import { resolve, join } from 'path';
 import { readFileSync } from 'fs';
+import gulpUtil from 'gulp-util';
+import gulpBabel from 'gulp-babel';
 
 describe('babel-plugin-css-modules-transform', () => {
     function transform(path, configuration = {}) {
@@ -102,4 +104,33 @@ describe('babel-plugin-css-modules-transform', () => {
         expect(transform('fixtures/import.js').code).to.be.equal(readExpected('fixtures/import.expected.js'));
     });
 
+    it('should replace require call with hash of class name => css class name via gulp', (cb) => {
+        const stream = gulpBabel({
+            plugins: [
+                'transform-strict-mode',
+                'transform-es2015-parameters',
+                'transform-es2015-destructuring',
+                'transform-es2015-modules-commonjs',
+                'transform-object-rest-spread',
+                'transform-es2015-spread',
+                'transform-export-extensions',
+                ['../src/index.js', {}]
+            ]
+        });
+
+        stream.on('data', (file) => {
+            expect(file.contents.toString()).to.be.equal(readExpected('fixtures/import.expected.js'));
+        });
+
+        stream.on('end', cb);
+
+        stream.write(new gulpUtil.File({
+            cwd: __dirname,
+            base: join(__dirname, 'fixtures'),
+            path: join(__dirname, 'fixtures/require.js'),
+            contents: readFileSync(join(__dirname, 'fixtures/import.js'))
+        }));
+
+        stream.end();
+    });
 });
