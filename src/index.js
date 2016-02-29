@@ -1,4 +1,4 @@
-import { resolve, dirname } from 'path';
+import { resolve, dirname, isAbsolute } from 'path';
 
 const simpleRequires = [
     'createImportedName',
@@ -17,6 +17,13 @@ const defaultOptions = {
 };
 
 export default function transformCssModules({ types: t }) {
+    function resolveModulePath(filename) {
+        const dir = dirname(filename);
+        if (isAbsolute(dir)) return dir;
+        if (process.env.PWD) return resolve(process.env.PWD, dir);
+        return resolve(dir);
+    }
+
     return {
         visitor: {
             CallExpression(path, { file, opts }) {
@@ -114,9 +121,8 @@ export default function transformCssModules({ types: t }) {
                         );
                     }
 
-                    const tokens = require(
-                        resolve(process.cwd(), dirname(file.opts.filenameRelative), cssPath)
-                    );
+                    const from = resolveModulePath(file.opts.filename);
+                    const tokens = require(resolve(from, cssPath));
 
                     /* eslint-disable new-cap */
                     path.replaceWith(t.ObjectExpression(
