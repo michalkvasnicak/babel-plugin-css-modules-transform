@@ -16,7 +16,7 @@ describe('babel-plugin-css-modules-transform', () => {
                 'transform-object-rest-spread',
                 'transform-es2015-spread',
                 'transform-export-extensions',
-                ['../src/index.js', configuration]
+                ['../../src/index.js', configuration]
             ]
         });
     }
@@ -25,14 +25,10 @@ describe('babel-plugin-css-modules-transform', () => {
         return readFileSync(resolve(__dirname, path), 'utf8');
     }
 
-    it('should throw if we are requiring css module to module scope', () => {
-        expect(() => transform('fixtures/global.require.js')).to.throw(
-            /^.+: You can't import css file .+ to a module scope\.$/
-        );
+    it('should not throw if we are requiring css module to module scope', () => {
+        expect(() => transform('fixtures/global.require.js')).to.not.throw();
 
-        expect(() => transform('fixtures/global.import.js')).to.throw(
-            /^.+: You can't import css file .+ to a module scope\.$/
-        );
+        expect(() => transform('fixtures/global.import.js')).to.not.throw();
     });
 
     it('should throw if generateScopeName is not exporting a function', () => {
@@ -114,7 +110,7 @@ describe('babel-plugin-css-modules-transform', () => {
                 'transform-object-rest-spread',
                 'transform-es2015-spread',
                 'transform-export-extensions',
-                ['../src/index.js', {}]
+                ['../../src/index.js', {}]
             ]
         });
 
