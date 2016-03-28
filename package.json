@@ -25,7 +25,8 @@
   },
   "homepage": "https://github.com/michalkvasnicak/babel-plugin-css-modules-transform#readme",
   "dependencies": {
-    "css-modules-require-hook": "^3.0.0"
+    "css-modules-require-hook": "^3.0.0",
+    "mkdirp": "^0.5.1"
   },
   "devDependencies": {
     "babel-cli": "^6.1.18",
@@ -49,7 +50,8 @@
     "postcss-modules-extract-imports": "^1.x",
     "postcss-modules-local-by-default": "^1.x",
     "postcss-modules-scope": "^1.x",
-    "postcss-modules-values": "^1.x"
+    "postcss-modules-values": "^1.x",
+    "rimraf": "^2.5.4"
   },
   "engines": {
     "node": ">=4.0.0"

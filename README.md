@@ -74,6 +74,7 @@ npm install --save-dev babel-plugin-css-modules-transform
                     "npm-module-name",
                     "./path/to/module-exporting-a-function.js"
                 ],
+                "extractCss": "./dist/stylesheets/combined.css"
             }
         ]
     ]
@@ -116,6 +117,54 @@ and then add any relevant extensions to your plugin config:
 
 ```
 
+## Extract CSS Files
+
+When you publish a library, you might want to ship compiled css files as well to
+help integration in other projects.
+
+An more complete alternative is to use
+[babel-plugin-webpack-loaders](https://github.com/istarkov/babel-plugin-webpack-loaders)
+but be aware that a new webpack instance is run for each css file, this has a
+huge overhead. If you do not use fancy stuff, you might consider using
+[babel-plugin-css-modules-transform](https://github.com/michalkvasnicak/babel-plugin-css-modules-transform)
+instead.
+
+
+To combine all css files in a single file, give its name:
+
+```
+{
+    "plugins": [
+        [
+            "css-modules-transform", {
+                "extractCss": "./dist/stylesheets/combined.css"
+            }
+        ]
+    ]
+}
+```
+
+To extract all files in a single directory, give an object:
+
+```
+{
+    "plugins": [
+        [
+            "css-modules-transform", {
+                "extractCss": {
+                    dir: "./dist/stylesheets/",
+                    relativeRoot: "./src/",
+                    filename: "[path]/[name].css"
+                }
+            }
+        ]
+    ]
+}
+```
+
+Note that `relativeRoot` is used to resolve relative directory names, available
+as `[path]` in `filename` pattern.
+
 ## Using a `babel-register`
 
 Make sure you set `ignore` option of `babel-register` to ignore all files used by css-modules-require-hook to process your css files.
@@ -124,7 +173,7 @@ Make sure you set `ignore` option of `babel-register` to ignore all files used b
 
 ```js
 require('babel-register')({
-    ignore: /processCss\.js$/ // regex matching all files used by css-modules-require-hook to process your css files 
+    ignore: /processCss\.js$/ // regex matching all files used by css-modules-require-hook to process your css files
 })
 ```
 
@@ -134,7 +183,7 @@ Create a js file with content
 
 ```js
 require('babel-register')({
-    ignore: /processCss\.js$/ // regex matching all files used by css-modules-require-hook to process your css files 
+    ignore: /processCss\.js$/ // regex matching all files used by css-modules-require-hook to process your css files
 })
 ```
 
