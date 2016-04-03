@@ -24,9 +24,27 @@ export default function transformCssModules({ types: t }) {
         return resolve(dir);
     }
 
+    /**
+     *
+     * @param {String} filepath     javascript file path
+     * @param {String} cssFile      requireed css file path
+     * @returns {Array} array of class names
+     */
+    function requireCssFile(filepath, cssFile) {
+        const from = resolveModulePath(filepath);
+        return require(resolve(from, cssFile));
+    }
+
+    // is css modules require hook initialized?
+    let initialized = false;
+
     return {
         visitor: {
-            CallExpression(path, { file, opts }) {
+            Program(path, { opts }) {
+                if (initialized) {
+                    return;
+                }
+
                 const currentConfig = { ...defaultOptions, ...opts };
 
                 // check if there are simple requires and if they are functions
@@ -105,6 +123,10 @@ export default function transformCssModules({ types: t }) {
 
                 require('css-modules-require-hook')(currentConfig);
 
+                initialized = true;
+            },
+
+            CallExpression(path, { file }) {
                 const { callee: { name: calleeName }, arguments: args } = path.node;
 
                 if (calleeName !== 'require' || !args.length || !t.isStringLiteral(args[0])) {
@@ -121,8 +143,7 @@ export default function transformCssModules({ types: t }) {
                         );
                     }
 
-                    const from = resolveModulePath(file.opts.filename);
-                    const tokens = require(resolve(from, cssPath));
+                    const tokens = requireCssFile(file.opts.filename, args[0].value);
 
                     /* eslint-disable new-cap */
                     path.replaceWith(t.ObjectExpression(

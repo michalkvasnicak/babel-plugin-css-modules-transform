@@ -1,4 +1,3 @@
-const babel = require('babel-core');
 import { expect } from 'chai';
 import { resolve, join } from 'path';
 import { readFileSync } from 'fs';
@@ -7,6 +6,10 @@ import gulpBabel from 'gulp-babel';
 
 describe('babel-plugin-css-modules-transform', () => {
     function transform(path, configuration = {}) {
+        // remove css modules transform plugin (simulates clean processes)
+        delete require.cache['/Users/Michal/Work/babel-plugin-css-modules-transform/src/index.js'];
+        const babel = require('babel-core');
+
         return babel.transformFileSync(resolve(__dirname, path), {
             plugins: [
                 'transform-strict-mode',
@@ -16,7 +19,7 @@ describe('babel-plugin-css-modules-transform', () => {
                 'transform-object-rest-spread',
                 'transform-es2015-spread',
                 'transform-export-extensions',
-                ['../src/index.js', configuration]
+                ['../../src/index.js', configuration]
             ]
         });
     }
@@ -114,7 +117,7 @@ describe('babel-plugin-css-modules-transform', () => {
                 'transform-object-rest-spread',
                 'transform-es2015-spread',
                 'transform-export-extensions',
-                ['../src/index.js', {}]
+                ['../../src/index.js', {}]
             ]
         });
 
