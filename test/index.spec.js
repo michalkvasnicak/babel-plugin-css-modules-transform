@@ -7,7 +7,7 @@ import gulpBabel from 'gulp-babel';
 describe('babel-plugin-css-modules-transform', () => {
     function transform(path, configuration = {}) {
         // remove css modules transform plugin (simulates clean processes)
-        delete require.cache['/Users/Michal/Work/babel-plugin-css-modules-transform/src/index.js'];
+        delete require.cache[resolve(__dirname, '../src/index.js')];
         const babel = require('babel-core');
 
         return babel.transformFileSync(resolve(__dirname, path), {
