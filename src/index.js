@@ -107,7 +107,7 @@ export default function transformCssModules({ types: t }) {
                             currentConfig[key][index] = require(plugin);
                         } catch (e) {
                             try {
-                                currentConfig[key][index] = require(resolve(process.cwd(), path));
+                                currentConfig[key][index] = require(resolve(process.cwd(), plugin));
                             } catch (_e) {
                                 // do nothing
                             }
