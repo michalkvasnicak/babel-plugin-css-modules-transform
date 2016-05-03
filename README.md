@@ -42,7 +42,7 @@ console.log(styles.someClass); // prints Test__someClass___2Frqu
 npm install --save-dev babel-plugin-css-modules-transform
 ```
 
-**Include plugin to `.babelrc`**
+**Include plugin in `.babelrc`**
 
 ```json
 {
@@ -57,7 +57,7 @@ npm install --save-dev babel-plugin-css-modules-transform
 {
     "plugins": [
         [
-            "css-modules-transform", { 
+            "css-modules-transform", {
                 "generateScopedName": "[name]__[local]___[hash:base64:5]", // in case you don't want to use a function
                 "generateScopedName": "./path/to/module-exporting-a-function.js", // in case you want to use a function
                 "generateScopedName": "npm-module-name",
@@ -65,6 +65,7 @@ npm install --save-dev babel-plugin-css-modules-transform
                 "preprocessCss": "npm-module-name",
                 "processCss": "./path/to/module-exporting-a-function.js",
                 "processCss": "npm-module-name",
+                "extensions": [".css", ".scss", ".less"], // list extensions to process; defaults to .css
                 "append": [
                     "npm-module-name",
                     "./path/to/module-exporting-a-function.js"
@@ -77,6 +78,42 @@ npm install --save-dev babel-plugin-css-modules-transform
         ]
     ]
 }
+```
+
+## Using a preprocessor
+
+When using this plugin with a preprocessor, you'll need to configure it as such:
+
+
+```
+// ./path/to/module-exporting-a-function.js
+var sass = require('node-sass');
+var path = require('path');
+
+module.exports = function processSass(data, filename) {
+    var result;
+    result = sass.renderSync({
+        data: data,
+        file: filename
+    }).css;
+    return result.toString('utf8');
+};
+```
+
+and then add any relevant extensions to your plugin config:
+
+```
+{
+    "plugins": [
+        [
+            "css-modules-transform", {
+                "preprocessCss": "./path/to/module-exporting-a-function.js",
+                "extensions": [".css", ".scss"]
+            }
+        ]
+    ]
+}
+
 ```
 
 ## License

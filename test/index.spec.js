@@ -136,4 +136,8 @@ describe('babel-plugin-css-modules-transform', () => {
 
         stream.end();
     });
+
+    it('should accept file extensions as an array', () => {
+        expect(transform('fixtures/extensions.js', {extensions: ['.scss', '.css']}).code).to.be.equal(readExpected('fixtures/extensions.expected.js'));
+    });
 });
