@@ -44,10 +44,10 @@ export default function transformCssModules({ types: t }) {
     // is css modules require hook initialized?
     let initialized = false;
 
-    let matchExtensions = /\.css/i;
+    let matchExtensions = /\.css$/i;
     function matcher(extensions = ['.css']) {
-        const extensionsPatern = extensions.join('|').replace('.', '\.');
-        return new RegExp(`(${extensionsPatern})`, 'i');
+        const extensionsPatern = extensions.join('|').replace(/\./g, '\\\.');
+        return new RegExp(`(${extensionsPatern})$`, 'i');
     }
 
     return {

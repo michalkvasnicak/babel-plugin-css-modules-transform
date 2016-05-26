@@ -25,7 +25,7 @@ describe('babel-plugin-css-modules-transform', () => {
     }
 
     function readExpected(path) {
-        return readFileSync(resolve(__dirname, path), 'utf8');
+        return readFileSync(resolve(__dirname, path), 'utf8').trim();
     }
 
     it('should throw if we are requiring css module to module scope', () => {
