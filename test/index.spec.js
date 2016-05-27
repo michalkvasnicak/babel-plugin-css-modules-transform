@@ -25,6 +25,11 @@ describe('babel-plugin-css-modules-transform', () => {
     }
 
     function readExpected(path) {
+        // We trim the contents of the file so that we don't have
+        // to deal with newline issues, since some text editors
+        // automatically inserts them. It's easier to do this than to
+        // configure the editors to avoid inserting newlines for these
+        // particular files.
         return readFileSync(resolve(__dirname, path), 'utf8').trim();
     }
 
