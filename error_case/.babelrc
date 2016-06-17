@@ -1,0 +1,7 @@
+{
+  "plugins": [
+    ["css-modules-transform", {
+      "processCss": "./src/utils/processCss.js"
+    }]
+  ]
+}
