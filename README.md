@@ -128,6 +128,18 @@ require('babel-register')({
 })
 ```
 
+## Using in mocha
+
+Create a js file with content
+
+```js
+require('babel-register')({
+    ignore: /processCss\.js$/ // regex matching all files used by css-modules-require-hook to process your css files 
+})
+```
+
+and then set this file as a compiler `--compilers js:<name-of-your-file>.js`
+
 ## License
 
 MIT
