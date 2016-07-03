@@ -116,6 +116,18 @@ and then add any relevant extensions to your plugin config:
 
 ```
 
+## Using a `babel-register`
+
+Make sure you set `ignore` option of `babel-register` to ignore all files used by css-modules-require-hook to process your css files.
+
+**Require `babel-register` only once otherwise it will fail**
+
+```js
+require('babel-register')({
+    ignore: /processCss\.js$/ // regex matching all files used by css-modules-require-hook to process your css files 
+})
+```
+
 ## License
 
 MIT
