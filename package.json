@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-css-modules-transform",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Transform required css modules so one can use generated class names.",
   "main": "build/index.js",
   "scripts": {
