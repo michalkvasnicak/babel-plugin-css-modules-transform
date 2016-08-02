@@ -1,4 +1,22 @@
-import { resolve, dirname, isAbsolute } from 'path';
+import { resolve, dirname, basename, extname, isAbsolute, join, relative } from 'path';
+
+import mkdirp from 'mkdirp';
+// *
+import { writeFileSync, appendFileSync } from 'fs';
+/* /
+const writeFileSync = (file, content) => {
+    console.log(`Will save ${file}\n${content.replace(/^/gm, '  ')}`);
+};
+// */
+
+const writeCssFile = (filename, content) => {
+    mkdirp.sync(dirname(filename));
+    writeFileSync(filename, content);
+};
+const appendCssFile = (filename, content) => {
+    mkdirp.sync(dirname(filename));
+    appendFileSync(filename, content);
+};
 
 const simpleRequires = [
     'createImportedName',
@@ -52,16 +70,77 @@ export default function transformCssModules({ types: t }) {
 
     return {
         visitor: {
-            Program(path, { opts }) {
+            Program(path, state) {
                 if (initialized) {
                     return;
                 }
 
-                const currentConfig = { ...defaultOptions, ...opts };
+                const currentConfig = { ...defaultOptions, ...state.opts };
+                // this is not a css-require-ook config
+                delete currentConfig.extractCss;
 
                 // match file extensions, speeds up transform by creating one
                 // RegExp ahead of execution time
                 matchExtensions = matcher(currentConfig.extensions);
+
+                // Add a space in current state for css filenames
+                state.$$css = {
+                    styles: new Map()
+                };
+
+                const extractCssFile = (filepath, css) => {
+                    const { extractCss = null } = state.opts;
+                    if (!extractCss) return null;
+
+                    // this is the case where a single extractCss is requested
+                    if (typeof(extractCss) === 'string') {
+                        // If this is the first file, then we should replace
+                        // old content
+                        if (state.$$css.styles.size === 1) {
+                            return writeCssFile(extractCss, css);
+                        }
+                        // this should output in a single file.
+                        // Let's append the new file content.
+                        return appendCssFile(extractCss, css);
+                    }
+
+                    // This is the case where each css file is written in
+                    // its own file.
+                    const {
+                        dir = 'dist',
+                        filename = '[name].css',
+                        relativeRoot = ''
+                    } = extractCss;
+
+                    // Make css file narmpe relative to relativeRoot
+                    const relativePath = relative(
+                        resolve(process.cwd(), relativeRoot),
+                        filepath
+                    );
+                    const destination = join(
+                        resolve(process.cwd(), dir),
+                        filename
+                    )
+                        .replace(/\[name]/, basename(filepath, extname(filepath)))
+                        .replace(/\[path]/, relativePath);
+
+                    writeCssFile(destination, css);
+                };
+
+                const pushStylesCreator = (toWrap) => (css, filepath) => {
+                    let processed;
+                    if (typeof toWrap === 'function') {
+                        processed = toWrap(css, filepath);
+                    }
+                    if (typeof processed !== 'string') processed = css;
+
+                    if (!state.$$css.styles.has(filepath)) {
+                        state.$$css.styles.set(filepath, processed);
+                        extractCssFile(filepath, processed);
+                    }
+
+                    return processed;
+                };
 
                 // check if there are simple requires and if they are functions
                 simpleRequires.forEach(key => {
@@ -108,6 +187,9 @@ export default function transformCssModules({ types: t }) {
                     }
                 });
 
+                // wrap or define processCss function that collect generated css
+                currentConfig.processCss = pushStylesCreator(currentConfig.processCss);
+
                 complexRequires.forEach(key => {
                     if (!currentConfig.hasOwnProperty(key)) {
                         return;
@@ -142,6 +224,18 @@ export default function transformCssModules({ types: t }) {
                 initialized = true;
             },
 
+            ImportDeclaration(path, { file }) {
+                // this method is called between enter and exit, so we can map css to our state
+                // it is then replaced with require call which will be handled in seconds pass by CallExpression
+                // CallExpression will then replace it or remove depending on parent node (if is Program or not)
+                const { value } = path.node.source;
+
+                if (matchExtensions.test(value)) {
+                    const requiringFile = file.opts.filename;
+                    requireCssFile(requiringFile, value);
+                }
+            },
+
             CallExpression(path, { file }) {
                 const { callee: { name: calleeName }, arguments: args } = path.node;
 
@@ -152,25 +246,24 @@ export default function transformCssModules({ types: t }) {
                 const [{ value: stylesheetPath }] = args;
 
                 if (matchExtensions.test(stylesheetPath)) {
-                    // if parent expression is variable declarator, replace right side with tokens
-                    if (!t.isVariableDeclarator(path.parent)) {
-                        throw new Error(
-                            `You can't import css file ${stylesheetPath} to a module scope.`
-                        );
-                    }
-
                     const requiringFile = file.opts.filename;
                     const tokens = requireCssFile(requiringFile, stylesheetPath);
 
-                    /* eslint-disable new-cap */
-                    path.replaceWith(t.ObjectExpression(
+                    // if parent expression is not a Program, replace expression with tokens
+                    // Otherwise remove require from file, we just want to get generated css for our output
+                    if (!t.isExpressionStatement(path.parent)) {
+                        /* eslint-disable new-cap */
+                        path.replaceWith(t.ObjectExpression(
                             Object.keys(tokens).map(
                                 token => t.ObjectProperty(
-                                t.StringLiteral(token),
-                                t.StringLiteral(tokens[token])
+                                    t.StringLiteral(token),
+                                    t.StringLiteral(tokens[token])
+                                )
                             )
-                        )
-                    ));
+                        ));
+                    } else {
+                        path.remove();
+                    }
                 }
             }
         }
