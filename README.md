@@ -179,10 +179,11 @@ as `[path]` in `filename` pattern.
 Make sure you set `ignore` option of `babel-register` to ignore all files used by css-modules-require-hook to process your css files.
 
 **Require `babel-register` only once otherwise it will fail**
+**Be aware, you need to explicitly ignore `node_modules` if you set `ignore` option**
 
 ```js
 require('babel-register')({
-    ignore: /processCss\.js$/ // regex matching all files used by css-modules-require-hook to process your css files
+    ignore: /(processCss\.js|node_modules)/ // regex matching all files used by css-modules-require-hook to process your css files
 })
 ```
 
@@ -190,9 +191,11 @@ require('babel-register')({
 
 Create a js file with content
 
+**Be aware, you need to explicitly ignore `node_modules` if you set `ignore` option**
+
 ```js
 require('babel-register')({
-    ignore: /processCss\.js$/ // regex matching all files used by css-modules-require-hook to process your css files
+    ignore: /(processCss\.js|node_modules)/ // regex matching all files used by css-modules-require-hook to process your css files
 })
 ```
 
