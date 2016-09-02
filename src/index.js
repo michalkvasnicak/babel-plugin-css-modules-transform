@@ -1,13 +1,9 @@
 import { resolve, dirname, basename, extname, isAbsolute, join, relative } from 'path';
-
-import mkdirp from 'mkdirp';
-// *
 import { writeFileSync, appendFileSync } from 'fs';
-/* /
-const writeFileSync = (file, content) => {
-    console.log(`Will save ${file}\n${content.replace(/^/gm, '  ')}`);
-};
-// */
+import mkdirp from 'mkdirp';
+
+// options resolvers
+import * as requireHooksOptions from './options_resolvers';
 
 const writeCssFile = (filename, content) => {
     mkdirp.sync(dirname(filename));
@@ -17,18 +13,6 @@ const appendCssFile = (filename, content) => {
     mkdirp.sync(dirname(filename));
     appendFileSync(filename, content);
 };
-
-const simpleRequires = [
-    'createImportedName',
-    'generateScopedName',
-    'processCss',
-    'preprocessCss'
-];
-
-const complexRequires = [
-    'append',
-    'prepend'
-];
 
 const defaultOptions = {
     generateScopedName: '[name]__[local]___[hash:base64:5]'
@@ -63,6 +47,7 @@ export default function transformCssModules({ types: t }) {
     let initialized = false;
 
     let matchExtensions = /\.css$/i;
+
     function matcher(extensions = ['.css']) {
         const extensionsPatern = extensions.join('|').replace(/\./g, '\\\.');
         return new RegExp(`(${extensionsPatern})$`, 'i');
@@ -129,9 +114,11 @@ export default function transformCssModules({ types: t }) {
 
                 const pushStylesCreator = (toWrap) => (css, filepath) => {
                     let processed;
+
                     if (typeof toWrap === 'function') {
                         processed = toWrap(css, filepath);
                     }
+
                     if (typeof processed !== 'string') processed = css;
 
                     if (!state.$$css.styles.has(filepath)) {
@@ -142,82 +129,18 @@ export default function transformCssModules({ types: t }) {
                     return processed;
                 };
 
-                // check if there are simple requires and if they are functions
-                simpleRequires.forEach(key => {
-                    if (typeof currentConfig[key] !== 'string') {
+                // resolve options
+                Object.keys(requireHooksOptions).forEach(key => {
+                    // skip undefined options
+                    if (currentConfig[key] === undefined) {
                         return;
                     }
 
-                    const modulePath = resolve(process.cwd(), currentConfig[key]);
-
-                    // this one can be require or string
-                    if (key === 'generateScopedName') {
-                        try {
-                            // if it is existing file, require it, otherwise use value
-                            currentConfig[key] = require(modulePath);
-                        } catch (e) {
-                            try {
-                                currentConfig[key] = require(currentConfig[key]);
-                            } catch (_e) {
-                                // do nothing, because it is not a valid path
-                            }
-                        }
-
-                        if (typeof currentConfig[key] !== 'function' && typeof currentConfig[key] !== 'string') {
-                            throw new Error(`Configuration '${key}' is not a string or function.`);
-                        }
-
-                        return;
-                    }
-
-                    if (currentConfig.hasOwnProperty(key)) {
-                        try {
-                            currentConfig[key] = require(modulePath);
-                        } catch (e) {
-                            try {
-                                currentConfig[key] = require(currentConfig[key]);
-                            } catch (_e) {
-                                // do nothing because it is not a valid path
-                            }
-                        }
-
-                        if (typeof currentConfig[key] !== 'function') {
-                            throw new Error(`Module '${modulePath}' does not exist or is not a function.`);
-                        }
-                    }
+                    currentConfig[key] = requireHooksOptions[key](currentConfig[key], currentConfig);
                 });
 
                 // wrap or define processCss function that collect generated css
                 currentConfig.processCss = pushStylesCreator(currentConfig.processCss);
-
-                complexRequires.forEach(key => {
-                    if (!currentConfig.hasOwnProperty(key)) {
-                        return;
-                    }
-
-                    if (!Array.isArray(currentConfig[key])) {
-                        throw new Error(`Configuration '${key}' has to be an array.`);
-                    }
-
-                    currentConfig[key].forEach((plugin, index) => {
-                        // first try to load it using npm
-                        try {
-                            currentConfig[key][index] = require(plugin);
-                        } catch (e) {
-                            try {
-                                currentConfig[key][index] = require(resolve(process.cwd(), plugin));
-                            } catch (_e) {
-                                // do nothing
-                            }
-                        }
-
-                        if (typeof currentConfig[key][index] !== 'function') {
-                            throw new Error(`Configuration '${key}' has to be valid path to a module at index ${index} or it does not export a function.`);
-                        }
-
-                        currentConfig[key][index] = currentConfig[key][index]();
-                    });
-                });
 
                 require('css-modules-require-hook')(currentConfig);
 
