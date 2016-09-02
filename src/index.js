@@ -40,7 +40,13 @@ export default function transformCssModules({ types: t }) {
             const from = resolveModulePath(filepath);
             filePathOrModuleName = resolve(from, filePathOrModuleName);
         }
-        return require(filePathOrModuleName);
+
+        // css-modules-require-hooks throws if file is ignored
+        try {
+            return require(filePathOrModuleName);
+        } catch (e) {
+            return {}; // return empty object, this simulates result of ignored stylesheet file
+        }
     }
 
     // is css modules require hook initialized?
@@ -49,8 +55,8 @@ export default function transformCssModules({ types: t }) {
     let matchExtensions = /\.css$/i;
 
     function matcher(extensions = ['.css']) {
-        const extensionsPatern = extensions.join('|').replace(/\./g, '\\\.');
-        return new RegExp(`(${extensionsPatern})$`, 'i');
+        const extensionsPattern = extensions.join('|').replace(/\./g, '\\\.');
+        return new RegExp(`(${extensionsPattern})$`, 'i');
     }
 
     return {
