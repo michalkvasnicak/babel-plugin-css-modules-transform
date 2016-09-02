@@ -4,8 +4,10 @@ ENV NODE_ENV=development
 
 WORKDIR /var/www/html
 
-ADD . /var/www/html
+ADD ./package.json /var/www/html/
 
 RUN npm install
 
-ENTRYPOINT npm test
+ADD . /var/www/html
+
+ENTRYPOINT ./run.sh

@@ -11,6 +11,7 @@ export default function processCss(value/* ,currentConfig */) {
     if (isModulePath(value)) {
         const requiredModule = requireLocalFileOrNodeModule(value);
 
+        console.dir('required module', requiredModule);
         if (isFunction(requiredModule)) {
             return requiredModule;
         }
