@@ -63,74 +63,17 @@ describe('babel-plugin-css-modules-transform', () => {
         rimraf(`${__dirname}/output/`, done);
     });
 
+    it('should ignore files', () => {
+        // run this as first case because css-modules-require-hook will be cached with given options
+        expect(transform('fixtures/require.js', {
+            ignore: /\.css$/
+        }).code).to.be.equal(readExpected('fixtures/require.ignored.expected.js'));
+    });
+
     it('should not throw if we are requiring css module to module scope', () => {
         expect(() => transform('fixtures/global.require.js')).to.not.throw();
 
         expect(() => transform('fixtures/global.import.js')).to.not.throw();
-    });
-
-    it('should throw if generateScopeName is not exporting a function', () => {
-        expect(
-            () => transform('fixtures/require.js', { generateScopedName: 'test/fixtures/generateScopedName.module.js' })
-        ).to.throw(
-            /^.+: Configuration '.+' is not a string or function\.$/
-        );
-    });
-
-    it('should not throw if generateScopeName is exporting a function', () => {
-        expect(
-            () => transform('fixtures/require.js', { generateScopedName: 'test/fixtures/generateScopedName.function.module.js' })
-        ).to.not.throw(
-            /^.+: Configuration '.+' is not a string or function\.$/
-        );
-    });
-
-    it('should throw if processCss is not a function', () => {
-        expect(
-            () => transform('fixtures/require.js', { processCss: 'test/fixtures/processCss.module.js' })
-        ).to.throw(
-            /^.+: Module '.+' does not exist or is not a function\.$/
-        );
-    });
-
-    it('should throw if preprocessCss is not a function', () => {
-        expect(
-            () => transform('fixtures/require.js', { preprocessCss: 'test/fixtures/preprocessCss.module.js' })
-        ).to.throw(
-            /^.+: Module '.+' does not exist or is not a function\.$/
-        );
-    });
-
-    it('should throw if append is not an array', () => {
-        expect(
-            () => transform('fixtures/require.js', { append: {} })
-        ).to.throw(
-            /^.+: Configuration '.+' has to be an array\.$/
-        );
-    });
-
-    it('should throw if prepend is not an array', () => {
-        expect(
-            () => transform('fixtures/require.js', { prepend: {} })
-        ).to.throw(
-            /^.+: Configuration '.+' has to be an array\.$/
-        );
-    });
-
-    it('should throw if append does not contain functions', () => {
-        expect(
-            () => transform('fixtures/require.js', { append: ['test/fixtures/append.module.js'] })
-        ).to.throw(
-            /^.+: Configuration '.+' has to be valid path to a module at index 0 or it does not export a function\.$/
-        );
-    });
-
-    it('should throw if prepend does not contain functions', () => {
-        expect(
-            () => transform('fixtures/require.js', { prepend: ['test/fixtures/append.module.js'] })
-        ).to.throw(
-            /^.+: Configuration '.+' has to be valid path to a module at index 0 or it does not export a function\.$/
-        );
     });
 
     it('should replace require call with hash of class name => css class name', () => {
@@ -158,7 +101,14 @@ describe('babel-plugin-css-modules-transform', () => {
     });
 
     it('should accept file extensions as an array', () => {
-        expect(transform('fixtures/extensions.js', {extensions: ['.scss', '.css']}).code).to.be.equal(readExpected('fixtures/extensions.expected.js'));
+        expect(
+            transform(
+                'fixtures/extensions.js',
+                {
+                    extensions: ['.scss', '.css']
+                }
+            ).code
+        ).to.be.equal(readExpected('fixtures/extensions.expected.js'));
     });
 
     it('should write a multiple css files using import', () => {
