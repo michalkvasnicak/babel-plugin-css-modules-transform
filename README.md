@@ -161,9 +161,9 @@ To extract all files in a single directory, give an object:
         [
             "css-modules-transform", {
                 "extractCss": {
-                    dir: "./dist/stylesheets/",
-                    relativeRoot: "./src/",
-                    filename: "[path]/[name].css"
+                    "dir": "./dist/stylesheets/",
+                    "relativeRoot": "./src/",
+                    "filename": "[path]"
                 }
             }
         ]
