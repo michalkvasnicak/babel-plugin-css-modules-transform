@@ -1,18 +1,10 @@
-import { resolve, dirname, basename, extname, isAbsolute, join, relative } from 'path';
-import { writeFileSync, appendFileSync } from 'fs';
-import mkdirp from 'mkdirp';
+import { resolve, dirname, isAbsolute } from 'path';
 
 // options resolvers
 import * as requireHooksOptions from './options_resolvers';
 
-const writeCssFile = (filename, content) => {
-    mkdirp.sync(dirname(filename));
-    writeFileSync(filename, content);
-};
-const appendCssFile = (filename, content) => {
-    mkdirp.sync(dirname(filename));
-    appendFileSync(filename, content);
-};
+// utils.
+import { extractCssFile } from './utils';
 
 const defaultOptions = {
     generateScopedName: '[name]__[local]___[hash:base64:5]'
@@ -79,45 +71,6 @@ export default function transformCssModules({ types: t }) {
                     styles: new Map()
                 };
 
-                const extractCssFile = (filepath, css) => {
-                    const { extractCss = null } = state.opts;
-                    if (!extractCss) return null;
-
-                    // this is the case where a single extractCss is requested
-                    if (typeof(extractCss) === 'string') {
-                        // If this is the first file, then we should replace
-                        // old content
-                        if (state.$$css.styles.size === 1) {
-                            return writeCssFile(extractCss, css);
-                        }
-                        // this should output in a single file.
-                        // Let's append the new file content.
-                        return appendCssFile(extractCss, css);
-                    }
-
-                    // This is the case where each css file is written in
-                    // its own file.
-                    const {
-                        dir = 'dist',
-                        filename = '[name].css',
-                        relativeRoot = ''
-                    } = extractCss;
-
-                    // Make css file narmpe relative to relativeRoot
-                    const relativePath = relative(
-                        resolve(process.cwd(), relativeRoot),
-                        filepath
-                    );
-                    const destination = join(
-                        resolve(process.cwd(), dir),
-                        filename
-                    )
-                        .replace(/\[name]/, basename(filepath, extname(filepath)))
-                        .replace(/\[path]/, relativePath);
-
-                    writeCssFile(destination, css);
-                };
-
                 const pushStylesCreator = (toWrap) => (css, filepath) => {
                     let processed;
 
@@ -129,7 +82,7 @@ export default function transformCssModules({ types: t }) {
 
                     if (!state.$$css.styles.has(filepath)) {
                         state.$$css.styles.set(filepath, processed);
-                        extractCssFile(filepath, processed);
+                        extractCssFile(process.cwd(), filepath, processed, state);
                     }
 
                     return processed;

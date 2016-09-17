@@ -126,6 +126,23 @@ describe('babel-plugin-css-modules-transform', () => {
             .to.be.equal(readExpected('fixtures/extractcss.styles.expected.css'));
     });
 
+    it('should write a multiple css files using import preserving directory structure', () => {
+        expect(transform('fixtures/import.js', {
+            extractCss: {
+                dir: `${__dirname}/output/`,
+                filename: '[path]/[name].css',
+                relativeRoot: `${__dirname}`
+            }
+        }).code).to.be.equal(readExpected('fixtures/import.expected.js'));
+
+        expect(readExpected(`${__dirname}/output/parent.css`))
+            .to.be.equal(readExpected('fixtures/extractcss.parent.expected.css'));
+        expect(readExpected(`${__dirname}/output/styles.css`))
+            .to.be.equal(readExpected('fixtures/extractcss.styles.expected.css'));
+        expect(readExpected(`${__dirname}/output/css/child.css`))
+            .to.be.equal(readExpected('fixtures/extractcss.css.child.expected.css'));
+    });
+
     it('should write a multiple css files using require', () => {
         expect(transform('fixtures/require.js', {
             extractCss: {
@@ -171,7 +188,7 @@ describe('babel-plugin-css-modules-transform', () => {
         stream.on('end', (err) => {
             if (err) return cb(err);
             expect(readExpected(`${__dirname}/output/combined.css`))
-                .to.be.equal(readExpected('fixtures/extractcss.parent.expected.css'));
+                .to.be.equal(readExpected('fixtures/extractcss.parent-combined.expected.css'));
 
             return cb();
         });
@@ -269,6 +286,7 @@ describe('babel-plugin-css-modules-transform', () => {
             }
         }).code).to.be.equal(readExpected('fixtures/require.expected.js'));
         expect(called).to.be.deep.equal([
+            'css/child.css',
             'parent.css',
             'styles.css'
         ]);
