@@ -3,10 +3,10 @@ import { statSync } from 'fs';
 import { isString } from '../utils';
 
 /**
- * Resolves mode option for css-modules-require-hook
+ * Resolves rootDir option for css-modules-require-hook
  *
  * @param {*} value
- * @returns {boolean}
+ * @returns {String}
  */
 export default function rootDir(value/* , currentConfig */) {
     if (!isString(value)) {
