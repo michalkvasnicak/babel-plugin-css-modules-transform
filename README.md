@@ -70,6 +70,7 @@ npm install --save-dev babel-plugin-css-modules-transform
                 "generateScopedName": "[name]__[local]___[hash:base64:5]", // in case you don't want to use a function
                 "generateScopedName": "./path/to/module-exporting-a-function.js", // in case you want to use a function
                 "generateScopedName": "npm-module-name",
+                "hashPrefix": "string",
                 "ignore": "*css",
                 "ignore": "./path/to/module-exporting-a-function-or-regexp.js",
                 "preprocessCss": "./path/to/module-exporting-a-function.js",
