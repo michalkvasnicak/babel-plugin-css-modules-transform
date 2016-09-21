@@ -4,7 +4,7 @@ import { isString } from '../utils';
  * Resolves mode option for css-modules-require-hook
  *
  * @param {*} value
- * @returns {boolean}
+ * @returns {String}
  */
 export default function mode(value/* , currentConfig */) {
     if (!isString(value)) {
