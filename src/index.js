@@ -118,15 +118,21 @@ export default function transformCssModules({ types: t }) {
                 initialized = true;
             },
 
-            ImportDeclaration(path, { file }) {
-                // this method is called between enter and exit, so we can map css to our state
-                // it is then replaced with require call which will be handled in seconds pass by CallExpression
-                // CallExpression will then replace it or remove depending on parent node (if is Program or not)
-                const { value } = path.node.source;
+            ImportDefaultSpecifier(path, { file }) {
+                const { value } = path.parentPath.node.source;
 
                 if (matchExtensions.test(value)) {
                     const requiringFile = file.opts.filename;
-                    requireCssFile(requiringFile, value);
+                    const tokens = requireCssFile(requiringFile, value);
+
+                    path.parentPath.replaceWith(
+                        t.variableDeclaration('var', [
+                            t.variableDeclarator(
+                                t.identifier(path.node.local.name),
+                                buildClassNameToScopeNameMap(tokens)
+                            )
+                        ]),
+                    );
                 }
             },
 
