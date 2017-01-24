@@ -51,6 +51,18 @@ export default function transformCssModules({ types: t }) {
         return new RegExp(`(${extensionsPattern})$`, 'i');
     }
 
+    function buildClassNameToScopeNameMap(tokens) {
+        /* eslint-disable new-cap */
+        return t.ObjectExpression(
+            Object.keys(tokens).map(token =>
+                t.ObjectProperty(
+                    t.StringLiteral(token),
+                    t.StringLiteral(tokens[token])
+                )
+            )
+        );
+    }
+
     return {
         visitor: {
             Program(path, state) {
@@ -134,15 +146,7 @@ export default function transformCssModules({ types: t }) {
                     // if parent expression is not a Program, replace expression with tokens
                     // Otherwise remove require from file, we just want to get generated css for our output
                     if (!t.isExpressionStatement(path.parent)) {
-                        /* eslint-disable new-cap */
-                        path.replaceWith(t.ObjectExpression(
-                            Object.keys(tokens).map(
-                                token => t.ObjectProperty(
-                                    t.StringLiteral(token),
-                                    t.StringLiteral(tokens[token])
-                                )
-                            )
-                        ));
+                        path.replaceWith(buildClassNameToScopeNameMap(tokens));
                     } else {
                         path.remove();
                     }
