@@ -118,6 +118,7 @@ export default function transformCssModules({ types: t }) {
                 initialized = true;
             },
 
+            // import styles from './style.css';
             ImportDefaultSpecifier(path, { file }) {
                 const { value } = path.parentPath.node.source;
 
@@ -136,6 +137,7 @@ export default function transformCssModules({ types: t }) {
                 }
             },
 
+            // const styles = require('./styles.css');
             CallExpression(path, { file }) {
                 const { callee: { name: calleeName }, arguments: args } = path.node;
 
