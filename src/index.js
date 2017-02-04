@@ -51,6 +51,18 @@ export default function transformCssModules({ types: t }) {
         return new RegExp(`(${extensionsPattern})$`, 'i');
     }
 
+    function buildClassNameToScopeNameMap(tokens) {
+        /* eslint-disable new-cap */
+        return t.ObjectExpression(
+            Object.keys(tokens).map(token =>
+                t.ObjectProperty(
+                    t.StringLiteral(token),
+                    t.StringLiteral(tokens[token])
+                )
+            )
+        );
+    }
+
     return {
         visitor: {
             Program(path, state) {
@@ -106,18 +118,26 @@ export default function transformCssModules({ types: t }) {
                 initialized = true;
             },
 
-            ImportDeclaration(path, { file }) {
-                // this method is called between enter and exit, so we can map css to our state
-                // it is then replaced with require call which will be handled in seconds pass by CallExpression
-                // CallExpression will then replace it or remove depending on parent node (if is Program or not)
-                const { value } = path.node.source;
+            // import styles from './style.css';
+            ImportDefaultSpecifier(path, { file }) {
+                const { value } = path.parentPath.node.source;
 
                 if (matchExtensions.test(value)) {
                     const requiringFile = file.opts.filename;
-                    requireCssFile(requiringFile, value);
+                    const tokens = requireCssFile(requiringFile, value);
+
+                    path.parentPath.replaceWith(
+                        t.variableDeclaration('var', [
+                            t.variableDeclarator(
+                                t.identifier(path.node.local.name),
+                                buildClassNameToScopeNameMap(tokens)
+                            )
+                        ]),
+                    );
                 }
             },
 
+            // const styles = require('./styles.css');
             CallExpression(path, { file }) {
                 const { callee: { name: calleeName }, arguments: args } = path.node;
 
@@ -134,15 +154,7 @@ export default function transformCssModules({ types: t }) {
                     // if parent expression is not a Program, replace expression with tokens
                     // Otherwise remove require from file, we just want to get generated css for our output
                     if (!t.isExpressionStatement(path.parent)) {
-                        /* eslint-disable new-cap */
-                        path.replaceWith(t.ObjectExpression(
-                            Object.keys(tokens).map(
-                                token => t.ObjectProperty(
-                                    t.StringLiteral(token),
-                                    t.StringLiteral(tokens[token])
-                                )
-                            )
-                        ));
+                        path.replaceWith(buildClassNameToScopeNameMap(tokens));
                     } else {
                         path.remove();
                     }

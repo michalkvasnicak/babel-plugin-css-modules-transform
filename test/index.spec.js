@@ -12,11 +12,12 @@ describe('babel-plugin-css-modules-transform', () => {
         if (configuration && !('devMode' in configuration)) configuration.devMode = true;
 
         return babel.transformFileSync(resolve(__dirname, path), {
+            babelrc: false,
             plugins: [
+                'transform-es2015-block-scoping',
                 'transform-strict-mode',
                 'transform-es2015-parameters',
                 'transform-es2015-destructuring',
-                'transform-es2015-modules-commonjs',
                 'transform-object-rest-spread',
                 'transform-es2015-spread',
                 'transform-export-extensions',
@@ -34,10 +35,10 @@ describe('babel-plugin-css-modules-transform', () => {
 
         return gulpBabel({
             plugins: [
+                'transform-es2015-block-scoping',
                 'transform-strict-mode',
                 'transform-es2015-parameters',
                 'transform-es2015-destructuring',
-                'transform-es2015-modules-commonjs',
                 'transform-object-rest-spread',
                 'transform-es2015-spread',
                 'transform-export-extensions',
