@@ -202,6 +202,10 @@ require('babel-register')({
 
 and then set this file as a compiler `--compilers js:<name-of-your-file>.js`
 
+## Alternatives
+
+- [babel-plugin-transform-postcss](https://github.com/wbyoung/babel-plugin-transform-postcss) - which supports async plugins and does not depend on `css-modules-require-hook`.
+
 ## License
 
 MIT
