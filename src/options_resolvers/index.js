@@ -9,6 +9,6 @@ export { default as mode } from './mode';
 export { default as prepend } from './prepend';
 export { default as preprocessCss } from './preprocessCss';
 export { default as processCss } from './processCss';
-export { default as processOpts } from './processOpts';
+export { default as processorOpts } from './processorOpts';
 export { default as rootDir } from './rootDir';
 export { default as use } from './use';

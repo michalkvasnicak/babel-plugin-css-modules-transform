@@ -7,7 +7,7 @@ import { isModulePath, isPlainObject, requireLocalFileOrNodeModule } from '../ut
  *
  * @returns {String|Function}
  */
-export default function processOpts(value/* ,currentConfig */) {
+export default function processorOpts(value/* ,currentConfig */) {
     if (isModulePath(value)) {
         const requiredModule = requireLocalFileOrNodeModule(value);
 
@@ -15,10 +15,10 @@ export default function processOpts(value/* ,currentConfig */) {
             return requiredModule;
         }
 
-        throw new Error(`Configuration file for 'processOpts' is not exporting a plain object`);
+        throw new Error(`Configuration file for 'processorOpts' is not exporting a plain object`);
     } else if (isPlainObject(value)) {
         return value;
     } else {
-        throw new Error(`Configuration 'processOpts' is not a plain object nor a valid path to module`);
+        throw new Error(`Configuration 'processorOpts' is not a plain object nor a valid path to module`);
     }
 }

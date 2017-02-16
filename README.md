@@ -77,8 +77,8 @@ npm install --save-dev babel-plugin-css-modules-transform
                 "preprocessCss": "npm-module-name",
                 "processCss": "./path/to/module-exporting-a-function.js",
                 "processCss": "npm-module-name",
-                "processOpts": "npm-module-name",
-                "processOpts": "./path/to/module/exporting-a-plain-object.js",
+                "processorOpts": "npm-module-name",
+                "processorOpts": "./path/to/module/exporting-a-plain-object.js",
                 "mode": "string",
                 "prepend": [
                     "npm-module-name",
