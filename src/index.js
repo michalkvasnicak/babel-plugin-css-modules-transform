@@ -92,7 +92,7 @@ export default function transformCssModules({ types: t }) {
 
                     if (typeof processed !== 'string') processed = css;
 
-                    if (!state.$$css.styles.has(filepath)) {
+                    if (currentConfig.devMode || !state.$$css.styles.has(filepath)) {
                         state.$$css.styles.set(filepath, processed);
                         extractCssFile(process.cwd(), filepath, processed, state);
                     }
