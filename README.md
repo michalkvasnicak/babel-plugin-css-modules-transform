@@ -175,33 +175,6 @@ To extract all files in a single directory, give an object:
 Note that `relativeRoot` is used to resolve relative directory names, available
 as `[path]` in `filename` pattern.
 
-## Using a `babel-register`
-
-Make sure you set `ignore` option of `babel-register` to ignore all files used by css-modules-require-hook to process your css files.
-
-**Require `babel-register` only once otherwise it will fail**
-**Be aware, you need to explicitly ignore `node_modules` if you set `ignore` option**
-
-```js
-require('babel-register')({
-    ignore: /(processCss\.js|node_modules)/ // regex matching all files used by css-modules-require-hook to process your css files
-})
-```
-
-## Using in mocha
-
-Create a js file with content
-
-**Be aware, you need to explicitly ignore `node_modules` if you set `ignore` option**
-
-```js
-require('babel-register')({
-    ignore: /(processCss\.js|node_modules)/ // regex matching all files used by css-modules-require-hook to process your css files
-})
-```
-
-and then set this file as a compiler `--compilers js:<name-of-your-file>.js`
-
 ## Alternatives
 
 - [babel-plugin-transform-postcss](https://github.com/wbyoung/babel-plugin-transform-postcss) - which supports async plugins and does not depend on `css-modules-require-hook`.

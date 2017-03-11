@@ -43,6 +43,10 @@ export default function transformCssModules({ types: t }) {
 
     // is css modules require hook initialized?
     let initialized = false;
+    // are we requiring a module for preprocessCss, processCss, etc?
+    // we don't want them to be transformed using this plugin
+    // because it will cause circular dependency in babel-node and babel-register process
+    let inProcessingFunction = false;
 
     let matchExtensions = /\.css$/i;
 
@@ -63,61 +67,80 @@ export default function transformCssModules({ types: t }) {
         );
     }
 
-    return {
-        visitor: {
-            Program(path, state) {
-                if (initialized) {
+    const cssMap = new Map();
+    let thisPluginOptions = null;
+
+    const pluginApi = {
+        manipulateOptions(options) {
+            if (initialized || inProcessingFunction) {
+                return options;
+            }
+
+            // find options for this plugin
+            // we have to use this hack because plugin.key does not have to be 'css-modules-transform'
+            // so we will identify it by comparing manipulateOptions
+            thisPluginOptions = options.plugins.filter(
+              ([plugin]) => plugin.manipulateOptions === pluginApi.manipulateOptions
+            )[0][1];
+
+            const currentConfig = { ...defaultOptions, ...thisPluginOptions };
+            // this is not a css-require-ook config
+            delete currentConfig.extractCss;
+
+            // match file extensions, speeds up transform by creating one
+            // RegExp ahead of execution time
+            matchExtensions = matcher(currentConfig.extensions);
+
+            const pushStylesCreator = (toWrap) => (css, filepath) => {
+                let processed;
+
+                if (typeof toWrap === 'function') {
+                    processed = toWrap(css, filepath);
+                }
+
+                if (typeof processed !== 'string') processed = css;
+
+                // set css content only if is new
+                if (!cssMap.has(filepath) || cssMap.get(filepath) !== processed) {
+                    cssMap.set(filepath, processed);
+                }
+
+                return processed;
+            };
+
+            // resolve options
+            Object.keys(requireHooksOptions).forEach(key => {
+                // skip undefined options
+                if (currentConfig[key] === undefined) {
                     return;
                 }
 
-                const currentConfig = { ...defaultOptions, ...state.opts };
-                // this is not a css-require-ook config
-                delete currentConfig.extractCss;
+                inProcessingFunction = true;
+                currentConfig[key] = requireHooksOptions[key](currentConfig[key], currentConfig);
+                inProcessingFunction = false;
+            });
 
-                // match file extensions, speeds up transform by creating one
-                // RegExp ahead of execution time
-                matchExtensions = matcher(currentConfig.extensions);
+            // wrap or define processCss function that collect generated css
+            currentConfig.processCss = pushStylesCreator(currentConfig.processCss);
 
-                // Add a space in current state for css filenames
-                state.$$css = {
-                    styles: new Map()
-                };
+            require('css-modules-require-hook')(currentConfig);
 
-                const pushStylesCreator = (toWrap) => (css, filepath) => {
-                    let processed;
+            initialized = true;
 
-                    if (typeof toWrap === 'function') {
-                        processed = toWrap(css, filepath);
-                    }
-
-                    if (typeof processed !== 'string') processed = css;
-
-                    if (!state.$$css.styles.has(filepath)) {
-                        state.$$css.styles.set(filepath, processed);
-                        extractCssFile(process.cwd(), filepath, processed, state);
-                    }
-
-                    return processed;
-                };
-
-                // resolve options
-                Object.keys(requireHooksOptions).forEach(key => {
-                    // skip undefined options
-                    if (currentConfig[key] === undefined) {
-                        return;
-                    }
-
-                    currentConfig[key] = requireHooksOptions[key](currentConfig[key], currentConfig);
-                });
-
-                // wrap or define processCss function that collect generated css
-                currentConfig.processCss = pushStylesCreator(currentConfig.processCss);
-
-                require('css-modules-require-hook')(currentConfig);
-
-                initialized = true;
-            },
-
+            return options;
+        },
+        post() {
+            // extract css only if is this option set
+            if (thisPluginOptions.extractCss) {
+                // always rewrite file :-/
+                extractCssFile(
+                    process.cwd(),
+                    cssMap,
+                    thisPluginOptions.extractCss
+                );
+            }
+        },
+        visitor: {
             // import styles from './style.css';
             ImportDefaultSpecifier(path, { file }) {
                 const { value } = path.parentPath.node.source;
@@ -162,4 +185,6 @@ export default function transformCssModules({ types: t }) {
             }
         }
     };
+
+    return pluginApi;
 }
