@@ -131,7 +131,7 @@ export default function transformCssModules({ types: t }) {
         },
         post() {
             // extract css only if is this option set
-            if (thisPluginOptions.extractCss) {
+            if (thisPluginOptions && thisPluginOptions.extractCss) {
                 // always rewrite file :-/
                 extractCssFile(
                     process.cwd(),
