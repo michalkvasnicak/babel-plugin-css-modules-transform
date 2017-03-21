@@ -16,7 +16,7 @@ export default function ignore(value/* , currentConfig */) {
             return requiredOption;
         }
 
-        throw new Error(`Configuration file for 'generateScopedName' is not exporting a string nor a function`);
+        throw new Error(`Configuration file for 'ignore' is not exporting a string nor a function`);
     } else if (isString(value)) {
         return value;
     } else {
