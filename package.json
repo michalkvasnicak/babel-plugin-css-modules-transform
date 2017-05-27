@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node node_modules/.bin/babel src --ignore **/*.spec.js -d build",
     "lint": "node node_modules/.bin/eslint src",
-    "test": "npm run lint && node node_modules/.bin/mocha --compilers js:babel-core/register 'test/**/*.spec.js'"
+    "pretest": "npm run lint",
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
