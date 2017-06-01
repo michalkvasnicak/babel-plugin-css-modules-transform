@@ -56,6 +56,10 @@ Icon
 # Thumbnails
 ._*
 
+# code coverage
+.nyc_output
+coverage
+
 # Files that might appear in the root of a volume
 .DocumentRevisions-V100
 .fseventsd

@@ -8,5 +8,12 @@
     "transform-object-rest-spread",
     "transform-es2015-spread",
     "transform-export-extensions"
-  ]
+  ],
+  "env": {
+    "test": {
+      "plugins": [
+        "istanbul"
+      ]
+    }
+  }
 }
