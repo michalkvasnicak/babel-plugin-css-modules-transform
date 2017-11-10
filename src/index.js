@@ -10,6 +10,21 @@ const defaultOptions = {
     generateScopedName: '[name]__[local]___[hash:base64:5]'
 };
 
+function findExpressionStatementChild(path, t) {
+    const parent = path.parentPath;
+    if (!parent) {
+        throw new Error('Invalid expression structure');
+    }
+    if (
+    t.isExpressionStatement(parent)
+    || t.isProgram(parent)
+    || t.isBlockStatement(parent)
+  ) {
+        return path;
+    }
+    return findExpressionStatementChild(parent, t);
+}
+
 export default function transformCssModules({ types: t }) {
     function resolveModulePath(filename) {
         const dir = dirname(filename);
@@ -113,6 +128,10 @@ export default function transformCssModules({ types: t }) {
                 return processed;
             };
 
+            // Build arguments especially for css-modules-require-hook
+            // because it has arguments validator and any external
+            // option will result in a error
+            const requireHooksArguments = {};
             // resolve options
             Object.keys(requireHooksOptions).forEach(key => {
                 // skip undefined options
@@ -121,14 +140,14 @@ export default function transformCssModules({ types: t }) {
                 }
 
                 inProcessingFunction = true;
-                currentConfig[key] = requireHooksOptions[key](currentConfig[key], currentConfig);
+                requireHooksArguments[key] = requireHooksOptions[key](currentConfig[key], currentConfig);
                 inProcessingFunction = false;
             });
 
             // wrap or define processCss function that collect generated css
-            currentConfig.processCss = pushStylesCreator(currentConfig.processCss);
+            requireHooksArguments.processCss = pushStylesCreator(currentConfig.processCss);
 
-            require('css-modules-require-hook')(currentConfig);
+            require('css-modules-require-hook')(requireHooksArguments);
 
             initialized = true;
 
@@ -154,14 +173,16 @@ export default function transformCssModules({ types: t }) {
                     const requiringFile = file.opts.filename;
                     const tokens = requireCssFile(requiringFile, value);
 
-                    path.parentPath.replaceWith(
-                        t.variableDeclaration('var', [
-                            t.variableDeclarator(
-                                t.identifier(path.node.local.name),
-                                buildClassNameToScopeNameMap(tokens)
-                            )
-                        ]),
-                    );
+                    const varDeclaration = t.variableDeclaration('var', [t.variableDeclarator(t.identifier(path.node.local.name), buildClassNameToScopeNameMap(tokens))]);
+
+                    if (thisPluginOptions.keepImport) {
+                        path.parentPath.replaceWithMultiple([
+                            t.importDeclaration([], t.stringLiteral(value)),
+                            varDeclaration
+                        ]);
+                    } else {
+                        path.parentPath.replaceWith(varDeclaration);
+                    }
                 }
             },
 
@@ -169,7 +190,18 @@ export default function transformCssModules({ types: t }) {
             CallExpression(path, { file }) {
                 const { callee: { name: calleeName }, arguments: args } = path.node;
 
-                if (calleeName !== 'require' || !args.length || !t.isStringLiteral(args[0])) {
+                if (
+                  calleeName !== 'require'
+                  || !args.length
+                  || !t.isStringLiteral(args[0])
+                  // Should keep expression placed in Program or block
+                  // because modular css without assignment to the variable
+                  // has makes no sense
+                  || (
+                    t.isProgram(path.parentPath)
+                    || t.isBlockStatement(path.parentPath)
+                  )
+                ) {
                     return;
                 }
 
@@ -181,10 +213,22 @@ export default function transformCssModules({ types: t }) {
 
                     // if parent expression is not a Program, replace expression with tokens
                     // Otherwise remove require from file, we just want to get generated css for our output
+                    // or keep if `keepImport` option enabled
                     if (!t.isExpressionStatement(path.parent)) {
                         path.replaceWith(buildClassNameToScopeNameMap(tokens));
+                        // Keeped import will places before closest expression statement child
+                        if (thisPluginOptions.keepImport) {
+                            findExpressionStatementChild(path, t).insertBefore(t.expressionStatement(
+                            t.callExpression(
+                              t.identifier('require'),
+                              [t.stringLiteral(stylesheetPath)]
+                            )
+                          ));
+                        }
                     } else {
-                        path.remove();
+                        if (!thisPluginOptions.keepImport) {
+                            path.remove();
+                        }
                     }
                 }
             }
