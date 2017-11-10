@@ -292,4 +292,10 @@ describe('babel-plugin-css-modules-transform', () => {
             'styles.css'
         ]);
     });
+
+    it('should keep require', () => {
+        expect(transform('fixtures/require.js', {
+            keepImport: true
+        }).code).to.be.equal(readExpected('fixtures/require.keep.expected.js'));
+    });
 });
