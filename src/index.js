@@ -194,13 +194,6 @@ export default function transformCssModules({ types: t }) {
                   calleeName !== 'require'
                   || !args.length
                   || !t.isStringLiteral(args[0])
-                  // Should keep expression placed in Program or block
-                  // because modular css without assignment to the variable
-                  // has makes no sense
-                  || (
-                    t.isProgram(path.parentPath)
-                    || t.isBlockStatement(path.parentPath)
-                  )
                 ) {
                     return;
                 }
