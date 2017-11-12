@@ -37,7 +37,12 @@ export default function transformCssModules({ types: t }) {
         try {
             return require(filePathOrModuleName);
         } catch (e) {
-            return {}; // return empty object, this simulates result of ignored stylesheet file
+            // As a last resort, require the cssFile itself. This enables loading of CSS files from external deps
+            try {
+                return require(cssFile);
+            } catch (f) {
+                return {}; // return empty object, this simulates result of ignored stylesheet file
+            }
         }
     }
 
