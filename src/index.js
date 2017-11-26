@@ -10,6 +10,21 @@ const defaultOptions = {
     generateScopedName: '[name]__[local]___[hash:base64:5]'
 };
 
+function findExpressionStatementChild(path, t) {
+    const parent = path.parentPath;
+    if (!parent) {
+        throw new Error('Invalid expression structure');
+    }
+    if (
+    t.isExpressionStatement(parent)
+    || t.isProgram(parent)
+    || t.isBlockStatement(parent)
+  ) {
+        return path;
+    }
+    return findExpressionStatementChild(parent, t);
+}
+
 export default function transformCssModules({ types: t }) {
     function resolveModulePath(filename) {
         const dir = dirname(filename);
@@ -91,6 +106,7 @@ export default function transformCssModules({ types: t }) {
             const currentConfig = { ...defaultOptions, ...thisPluginOptions };
             // this is not a css-require-ook config
             delete currentConfig.extractCss;
+            delete currentConfig.keepImport;
 
             // match file extensions, speeds up transform by creating one
             // RegExp ahead of execution time
@@ -154,14 +170,29 @@ export default function transformCssModules({ types: t }) {
                     const requiringFile = file.opts.filename;
                     const tokens = requireCssFile(requiringFile, value);
 
-                    path.parentPath.replaceWith(
-                        t.variableDeclaration('var', [
+                    const varDeclaration = t.variableDeclaration(
+                        'var',
+                        [
                             t.variableDeclarator(
                                 t.identifier(path.node.local.name),
                                 buildClassNameToScopeNameMap(tokens)
                             )
-                        ]),
+                        ]
                     );
+
+                    if (thisPluginOptions.keepImport === true) {
+                        path.parentPath.replaceWithMultiple([
+                            t.expressionStatement(
+                              t.callExpression(
+                                t.identifier('require'),
+                                [t.stringLiteral(value)]
+                              )
+                            ),
+                            varDeclaration
+                        ]);
+                    } else {
+                        path.parentPath.replaceWith(varDeclaration);
+                    }
                 }
             },
 
@@ -183,7 +214,19 @@ export default function transformCssModules({ types: t }) {
                     // Otherwise remove require from file, we just want to get generated css for our output
                     if (!t.isExpressionStatement(path.parent)) {
                         path.replaceWith(buildClassNameToScopeNameMap(tokens));
-                    } else {
+
+                        // Keeped import will places before closest expression statement child
+                        if (thisPluginOptions.keepImport === true) {
+                            findExpressionStatementChild(path, t).insertBefore(
+                                t.expressionStatement(
+                                t.callExpression(
+                                    t.identifier('require'),
+                                    [t.stringLiteral(stylesheetPath)]
+                                )
+                              )
+                            );
+                        }
+                    } else if (thisPluginOptions.keepImport !== true) {
                         path.remove();
                     }
                 }

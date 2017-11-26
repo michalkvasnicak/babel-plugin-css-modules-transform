@@ -292,4 +292,13 @@ describe('babel-plugin-css-modules-transform', () => {
             'styles.css'
         ]);
     });
+
+    describe('keepImport option', () => {
+        it('keeps requires/imports', () => {
+            expect(transform('fixtures/keepImport.js', {
+                keepImport: true,
+                extensions: ['.scss', '.css']
+            }).code).to.be.equal(readExpected('fixtures/keepImport.expected.js'));
+        });
+    });
 });

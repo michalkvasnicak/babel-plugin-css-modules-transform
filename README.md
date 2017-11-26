@@ -175,6 +175,24 @@ To extract all files in a single directory, give an object:
 Note that `relativeRoot` is used to resolve relative directory names, available
 as `[path]` in `filename` pattern.
 
+## Keeping import
+
+To keep import statements you should set option `keepImport` to *true*. In this way, simultaneously with the converted values, the import will be described as unassigned call expression.
+
+```js
+// before
+const styles = require('./test.css');
+```
+
+```js
+// after
+require('./test.css');
+
+const styles = {
+    'someClass': 'Test__someClass___2Frqu'
+}
+```
+
 ## Alternatives
 
 - [babel-plugin-transform-postcss](https://github.com/wbyoung/babel-plugin-transform-postcss) - which supports async plugins and does not depend on `css-modules-require-hook`.
