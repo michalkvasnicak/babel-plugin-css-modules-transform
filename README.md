@@ -38,7 +38,7 @@ console.log(styles.someClass); // prints Test__someClass___2Frqu
 
 ## Installation
 
-```
+```console
 npm install --save-dev babel-plugin-css-modules-transform
 ```
 
@@ -96,7 +96,7 @@ npm install --save-dev babel-plugin-css-modules-transform
 When using this plugin with a preprocessor, you'll need to configure it as such:
 
 
-```
+```js
 // ./path/to/module-exporting-a-function.js
 var sass = require('node-sass');
 var path = require('path');
@@ -113,7 +113,7 @@ module.exports = function processSass(data, filename) {
 
 and then add any relevant extensions to your plugin config:
 
-```
+```js
 {
     "plugins": [
         [
@@ -142,7 +142,7 @@ instead.
 
 To combine all css files in a single file, give its name:
 
-```
+```js
 {
     "plugins": [
         [
@@ -156,7 +156,7 @@ To combine all css files in a single file, give its name:
 
 To extract all files in a single directory, give an object:
 
-```
+```js
 {
     "plugins": [
         [
