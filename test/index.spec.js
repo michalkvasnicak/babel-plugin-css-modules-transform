@@ -301,4 +301,28 @@ describe('babel-plugin-css-modules-transform', () => {
             }).code).to.be.equal(readExpected('fixtures/keepImport.expected.js'));
         });
     });
+
+    describe('calling without options', () => {
+        it('keeps requires/imports', () => {
+            delete require.cache[resolve(__dirname, '../src/index.js')];
+            const babel = require('babel-core');
+            const result = babel.transformFileSync(resolve(__dirname, 'fixtures/import.js'), {
+                babelrc: false,
+                plugins: [
+                    'transform-es2015-block-scoping',
+                    'transform-strict-mode',
+                    'transform-es2015-parameters',
+                    'transform-es2015-destructuring',
+                    'transform-object-rest-spread',
+                    'transform-es2015-spread',
+                    'transform-export-extensions',
+                    '../../src/index.js'
+                ]
+            });
+
+            expect(result.code).to.be.equal(
+                readExpected('fixtures/import.expected.js')
+            );
+        });
+    });
 });
