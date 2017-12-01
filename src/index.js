@@ -180,7 +180,7 @@ export default function transformCssModules({ types: t }) {
                         ]
                     );
 
-                    if (thisPluginOptions.keepImport === true) {
+                    if (thisPluginOptions && thisPluginOptions.keepImport === true) {
                         path.parentPath.replaceWithMultiple([
                             t.expressionStatement(
                               t.callExpression(
@@ -216,7 +216,7 @@ export default function transformCssModules({ types: t }) {
                         path.replaceWith(buildClassNameToScopeNameMap(tokens));
 
                         // Keeped import will places before closest expression statement child
-                        if (thisPluginOptions.keepImport === true) {
+                        if (thisPluginOptions && thisPluginOptions.keepImport === true) {
                             findExpressionStatementChild(path, t).insertBefore(
                                 t.expressionStatement(
                                 t.callExpression(
@@ -226,7 +226,7 @@ export default function transformCssModules({ types: t }) {
                               )
                             );
                         }
-                    } else if (thisPluginOptions.keepImport !== true) {
+                    } else if (!thisPluginOptions || thisPluginOptions.keepImport !== true) {
                         path.remove();
                     }
                 }
