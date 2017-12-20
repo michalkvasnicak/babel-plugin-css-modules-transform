@@ -99,9 +99,15 @@ export default function transformCssModules({ types: t }) {
             // find options for this plugin
             // we have to use this hack because plugin.key does not have to be 'css-modules-transform'
             // so we will identify it by comparing manipulateOptions
-            thisPluginOptions = options.plugins.filter(
-              ([plugin]) => plugin.manipulateOptions === pluginApi.manipulateOptions
-            )[0][1];
+            if (Array.isArray(options.plugins[0])) { // babel 6
+                thisPluginOptions = options.plugins.filter(
+                  ([plugin]) => plugin.manipulateOptions === pluginApi.manipulateOptions
+                )[0][1];
+            } else { // babel 7
+                thisPluginOptions = options.plugins.filter(
+                  (plugin) => plugin.manipulateOptions === pluginApi.manipulateOptions
+                )[0].options;
+            }
 
             const currentConfig = { ...defaultOptions, ...thisPluginOptions };
             // this is not a css-require-ook config
