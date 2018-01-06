@@ -1,6 +1,6 @@
 {
   "require": [
-    "babel-core/register"
+    "babel-register"
   ],
   "sourceMap": false,
   "instrument": false

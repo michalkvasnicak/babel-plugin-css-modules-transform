@@ -2,7 +2,7 @@ machine:
   environment:
     PATH: "${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/node_modules/.bin"
   node:
-    version: 6.1.0
+    version: 6.12.3
 
 dependencies:
   cache_directories:
@@ -15,3 +15,6 @@ dependencies:
 test:
   override:
     - yarn test
+    # test with babel 7
+    - ./install-babel-7.sh
+    - BABEL_7=1 yarn test

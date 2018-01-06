@@ -1,3 +1,1 @@
-'use strict';
-
 const styles = {};
