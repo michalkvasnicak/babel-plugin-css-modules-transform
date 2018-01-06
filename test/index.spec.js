@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { resolve, join, relative } from 'path';
+import { resolve, join, relative, basename, dirname } from 'path';
 import { readFileSync } from 'fs';
 import gulpUtil from 'gulp-util';
 import rimraf from 'rimraf';
@@ -13,7 +13,7 @@ describe('babel-plugin-css-modules-transform', () => {
 
         return babel.transformFileSync(resolve(__dirname, path), {
             babelrc: false,
-            presets: [['env', { targets: { node: '6.12'} }]],
+            presets: [['env', { targets: { node: '6.12' } }]],
             plugins: [
                 'transform-object-rest-spread',
                 ['@babel/../../src/index.js', configuration]
@@ -29,7 +29,7 @@ describe('babel-plugin-css-modules-transform', () => {
         if (configuration && !('devMode' in configuration)) configuration.devMode = true;
 
         return gulpBabel({
-            presets: [['env', { targets: { node: '6.12'} }]],
+            presets: [['env', { targets: { node: '6.12' } }]],
             plugins: [
                 'transform-object-rest-spread',
                 ['@babel/../../src/index.js', configuration]
@@ -38,12 +38,18 @@ describe('babel-plugin-css-modules-transform', () => {
     }
 
     function readExpected(path) {
+        let file = path;
+
+        if (process.env.BABEL_7 && /\.js$/.test(file)) {
+            // we load fixture for babel 7, they changed few things so we need to use different fixture
+            file = join(dirname(file), `./${basename(file, '.js')}.babel7.js`);
+        }
         // We trim the contents of the file so that we don't have
         // to deal with newline issues, since some text editors
         // automatically inserts them. It's easier to do this than to
         // configure the editors to avoid inserting newlines for these
         // particular files.
-        return readFileSync(resolve(__dirname, path), 'utf8').trim();
+        return readFileSync(resolve(__dirname, file), 'utf8').trim();
     }
 
     beforeEach((done) => {
