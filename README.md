@@ -1,6 +1,8 @@
-# babel-plugin-css-modules-transform [Babel 6 only]
+# babel-plugin-css-modules-transform [![Circle CI](https://circleci.com/gh/michalkvasnicak/babel-plugin-css-modules-transform.svg?style=svg)](https://circleci.com/gh/michalkvasnicak/babel-plugin-css-modules-transform)
 
-[![Circle CI](https://circleci.com/gh/michalkvasnicak/babel-plugin-css-modules-transform.svg?style=svg)](https://circleci.com/gh/michalkvasnicak/babel-plugin-css-modules-transform)
+**🎉 Babel 6 and Babel 7 compatible**
+
+**⚠️ Babel 7 compatibility added in 1.4.0**
 
 This Babel plugin finds all `require`s for css module files and replace them with a hash where keys are class names and values are generated css class names.
 
