@@ -14,7 +14,7 @@ export default function rootDir(value/* , currentConfig */) {
     }
 
     if (!isAbsolute(value) || !statSync(value).isDirectory()) {
-        throw new Error(`Configuration 'rootDir' is not containg a valid absolute path`);
+        throw new Error(`Configuration 'rootDir' is not containing a valid absolute path`);
     }
 
     return value;
