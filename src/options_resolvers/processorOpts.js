@@ -1,7 +1,7 @@
 import { isModulePath, isPlainObject, requireLocalFileOrNodeModule } from '../utils';
 
 /**
- * Resolves processOpts option for css-modules-require-hook
+ * Resolves processorOpts option for css-modules-require-hook
  *
  * @param {String|Function} value
  *
