@@ -13,3 +13,4 @@ export { default as processorOpts } from './processorOpts';
 export { default as rootDir } from './rootDir';
 export { default as resolve } from './resolve';
 export { default as use } from './use';
+export { default as importPathFormatter } from './importPathFormatter';
