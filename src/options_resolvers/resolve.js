@@ -13,11 +13,11 @@ export default function resolve(value/* , currentConfig */) {
         throw new Error(`Configuration 'resolve' is not an object`);
     }
 
-    if (alias in value && !isPlainObject(value.alias)) {
+    if ('alias' in value && !isPlainObject(value.alias)) {
         throw new Error(`Configuration 'resolve.alias' is not an object`);
     }
 
-    if (extensions in value) {
+    if ('extensions' in value) {
         if (!Array.isArray(value.extensions)) {
             throw new Error(`Configuration 'resolve.extensions' is not an array`);
         }
@@ -29,7 +29,7 @@ export default function resolve(value/* , currentConfig */) {
         });
     }
 
-    if (modules in value) {
+    if ('modules' in value) {
         if (!Array.isArray(value.modules)) {
             throw new Error(`Configuration 'resolve.modules' is not an array`);
         }
@@ -41,11 +41,11 @@ export default function resolve(value/* , currentConfig */) {
         });
     }
 
-    if (mainFile in value && !isString(value.mainFile)) {
+    if ('mainFile' in value && !isString(value.mainFile)) {
         throw new Error(`Configuration 'resolve.mainFile' is not a string`);
     }
 
-    if (preserveSymlinks in value && !isBoolean(value.preserveSymlinks)) {
+    if ('preserveSymlinks' in value && !isBoolean(value.preserveSymlinks)) {
         throw new Error(`Configuration 'resolve.preserveSymlinks' is not a boolean`);
     }
 
