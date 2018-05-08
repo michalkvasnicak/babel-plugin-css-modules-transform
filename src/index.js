@@ -10,6 +10,16 @@ const defaultOptions = {
     generateScopedName: '[name]__[local]___[hash:base64:5]'
 };
 
+function updateStyleSheetPath(pathStringLiteral, importPathFormatter) {
+    if (!importPathFormatter) { return pathStringLiteral; }
+
+    return {
+        ...pathStringLiteral,
+        value: importPathFormatter(pathStringLiteral.value)
+    };
+}
+
+
 function findExpressionStatementChild(path, t) {
     const parent = path.parentPath;
     if (!parent) {
@@ -113,6 +123,7 @@ export default function transformCssModules({ types: t }) {
             // this is not a css-require-ook config
             delete currentConfig.extractCss;
             delete currentConfig.keepImport;
+            delete currentConfig.importPathFormatter;
 
             // match file extensions, speeds up transform by creating one
             // RegExp ahead of execution time
@@ -139,6 +150,9 @@ export default function transformCssModules({ types: t }) {
             Object.keys(requireHooksOptions).forEach(key => {
                 // skip undefined options
                 if (currentConfig[key] === undefined) {
+                    if (key === 'importPathFormatter' && thisPluginOptions && thisPluginOptions[key]) {
+                        thisPluginOptions[key] = requireHooksOptions[key](thisPluginOptions[key]);
+                    }
                     return;
                 }
 
@@ -191,7 +205,7 @@ export default function transformCssModules({ types: t }) {
                             t.expressionStatement(
                               t.callExpression(
                                 t.identifier('require'),
-                                [t.stringLiteral(value)]
+                                [updateStyleSheetPath(t.stringLiteral(value), thisPluginOptions.importPathFormatter)]
                               )
                             ),
                             varDeclaration
@@ -227,7 +241,7 @@ export default function transformCssModules({ types: t }) {
                                 t.expressionStatement(
                                 t.callExpression(
                                     t.identifier('require'),
-                                    [t.stringLiteral(stylesheetPath)]
+                                    [updateStyleSheetPath(t.stringLiteral(stylesheetPath), thisPluginOptions.importPathFormatter)]
                                 )
                               )
                             );

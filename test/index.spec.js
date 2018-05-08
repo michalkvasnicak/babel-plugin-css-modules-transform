@@ -109,12 +109,13 @@ describe('babel-plugin-css-modules-transform', () => {
     });
 
     it('should write a multiple css files using import', () => {
-        expect(transform('fixtures/import.js', {
+        expect(transform(`${__dirname}/fixtures/import.js`, {
             extractCss: {
                 dir: `${__dirname}/output/`,
-                filename: '[name].css',
-                relativeRoot: `${__dirname}`
-            }
+                filename: '[path]/[name].css',
+                relativeRoot: __dirname
+            },
+            extensions: ['.scss', '.css']
         }).code).to.be.equal(readExpected('fixtures/import.expected.js'));
 
         expect(readExpected(`${__dirname}/output/parent.css`))
