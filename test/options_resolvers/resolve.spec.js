@@ -48,4 +48,24 @@ describe('options_resolvers/resolve', () => {
           () => resolve({ preserveSymlinks: 1 })
         ).to.throw();
     });
+
+    it('works if resolve.alias is an object', () => {
+        expect(() => resolve({ alias: {} })).to.not.throw();
+    });
+
+    it('works if resolve.extensions is an array of strings', () => {
+        expect(() => resolve({ extensions: ['a', 'b'] })).to.not.throw();
+    });
+
+    it('works if resolve.modules is an array of valid file paths', () => {
+        expect(() => resolve({ modules: [__dirname] })).to.not.throw();
+    });
+
+    it('works if resolve.mainFile is a string', () => {
+        expect(() => resolve({ mainFile: 'aa' })).to.not.throw();
+    });
+
+    it('works if resolve.preserveSymlinks is a boolean', () => {
+        expect(() => resolve({ preserveSymlinks: true })).to.not.throw();
+    });
 });
