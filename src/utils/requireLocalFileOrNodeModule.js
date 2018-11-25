@@ -13,7 +13,11 @@ export default function requireLocalFileOrNodeModule(path) {
         // first try to require local file
         return require(localFile);
     } catch (e) {
-        // try to require node_module
-        return require(path);
+        if (e.code === 'MODULE_NOT_FOUND') {
+            // try to require node_module
+            return require(path);
+        }
+
+        throw e;
     }
 }
