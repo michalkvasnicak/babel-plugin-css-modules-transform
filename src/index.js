@@ -53,7 +53,7 @@ export default function transformCssModules({ types: t }) {
         let filePathOrModuleName = cssFile;
 
         // only resolve path to file when we have a file path
-        if (!/^\w/i.test(filePathOrModuleName)) {
+        if (!/^\w|^@/i.test(filePathOrModuleName)) {
             const from = resolveModulePath(filepath);
             filePathOrModuleName = resolve(from, filePathOrModuleName);
         }
