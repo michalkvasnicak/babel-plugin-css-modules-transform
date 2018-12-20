@@ -101,7 +101,6 @@ When using this plugin with a preprocessor, you'll need to configure it as such:
 ```js
 // ./path/to/module-exporting-a-function.js
 var sass = require('node-sass');
-var path = require('path');
 
 module.exports = function processSass(data, filename) {
     var result;
