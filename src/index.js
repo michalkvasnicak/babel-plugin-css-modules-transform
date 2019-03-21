@@ -215,6 +215,54 @@ export default function transformCssModules({ types: t }) {
                     }
                 }
             },
+            ImportDeclaration(path, { file }) {
+                const { value } = path.node.source;
+
+                if (matchExtensions.test(value)) {
+                    const requiringFile = file.opts.filename;
+                    const tokens = requireCssFile(requiringFile, value);
+
+
+                    const memberImports = path.node.specifiers.filter(specifier => {
+                        return specifier.type === 'ImportSpecifier';
+                    });
+
+                    if (memberImports.length > 0) {
+                        const transforms = [];
+
+                        memberImports.forEach(memberImport => {
+                            const memberName = memberImport.imported.name;
+                            const memberValue = tokens[memberName] || '';
+
+                            const varDeclaration = t.variableDeclaration(
+                                'var',
+                                [
+                                    t.variableDeclarator(
+                                        t.identifier(memberName),
+                                        t.stringLiteral(memberValue)
+                                    )
+                                ]
+                            );
+
+                            transforms.push(varDeclaration);
+                        });
+
+                        if (thisPluginOptions && thisPluginOptions.keepImport === true) {
+                            path.replaceWithMultiple([
+                                t.expressionStatement(
+                                  t.callExpression(
+                                    t.identifier('require'),
+                                    [updateStyleSheetPath(t.stringLiteral(value), thisPluginOptions.importPathFormatter)]
+                                  )
+                                ),
+                                ...transforms
+                            ]);
+                        } else {
+                            path.replaceWithMultiple(transforms);
+                        }
+                    }
+                }
+            },
 
             // const styles = require('./styles.css');
             CallExpression(path, { file }) {
