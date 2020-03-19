@@ -1,5 +1,5 @@
 {
-  "name": "babel-plugin-css-modules-transform",
+  "name": "@apehead/babel-plugin-css-modules-transform",
   "version": "1.6.2",
   "description": "Transform required css modules so one can use generated class names.",
   "main": "build/index.js",
@@ -7,11 +7,12 @@
     "build": "babel src --ignore **/*.spec.js -d build",
     "lint": "eslint src",
     "pretest": "npm run lint",
-    "test": "cross-env NODE_ENV=test nyc mocha"
+    "test": "cross-env NODE_ENV=test nyc mocha",
+    "prepublishOnly": "npm run test && npm run build"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/michalkvasnicak/babel-plugin-css-modules-transform.git"
+    "url": "git+https://github.com/apehead/babel-plugin-css-modules-transform.git"
   },
   "keywords": [
     "babel",
@@ -19,12 +20,12 @@
     "babel-plugin",
     "plugin"
   ],
-  "author": "Michal Kvasničák <michal.kvasnicak@gmail.com> (http://kvasnicak.info)",
+  "author": "Alexander Curiel <alexander.curiel@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/michalkvasnicak/babel-plugin-css-modules-transform/issues"
+    "url": "https://github.com/apehead/babel-plugin-css-modules-transform/issues"
   },
-  "homepage": "https://github.com/michalkvasnicak/babel-plugin-css-modules-transform#readme",
+  "homepage": "https://github.com/apehead/babel-plugin-css-modules-transform#readme",
   "dependencies": {
     "css-modules-require-hook": "^4.0.6",
     "mkdirp": "^0.5.1"
@@ -54,5 +55,8 @@
   },
   "engines": {
     "node": ">=4.0.0"
+  },
+  "directories": {
+    "test": "test"
   }
 }
