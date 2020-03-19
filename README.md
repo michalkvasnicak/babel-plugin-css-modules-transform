@@ -41,14 +41,14 @@ console.log(styles.someClass); // prints Test__someClass___2Frqu
 ## Installation
 
 ```console
-npm install --save-dev babel-plugin-css-modules-transform
+npm install --save-dev @apehead/babel-plugin-css-modules-transform
 ```
 
 **Include plugin in `.babelrc`**
 
 ```json
 {
-    "plugins": ["css-modules-transform"]
+    "plugins": ["@apehead/babel-plugin-css-modules-transform"]
 }
 ```
 
@@ -59,7 +59,7 @@ npm install --save-dev babel-plugin-css-modules-transform
 {
     "plugins": [
         [
-            "css-modules-transform", {
+            "@apehead/babel-plugin-css-modules-transform", {
                 "append": [
                     "npm-module-name",
                     "./path/to/module-exporting-a-function.js"
@@ -119,7 +119,7 @@ and then add any relevant extensions to your plugin config:
 {
     "plugins": [
         [
-            "css-modules-transform", {
+            "@apehead/babel-plugin-css-modules-transform", {
                 "preprocessCss": "./path/to/module-exporting-a-function.js",
                 "extensions": [".css", ".scss"]
             }
@@ -138,7 +138,7 @@ An more complete alternative is to use
 [babel-plugin-webpack-loaders](https://github.com/istarkov/babel-plugin-webpack-loaders)
 but be aware that a new webpack instance is run for each css file, this has a
 huge overhead. If you do not use fancy stuff, you might consider using
-[babel-plugin-css-modules-transform](https://github.com/michalkvasnicak/babel-plugin-css-modules-transform)
+[babel-plugin-css-modules-transform](https://github.com/apehead/babel-plugin-css-modules-transform)
 instead.
 
 
@@ -148,7 +148,7 @@ To combine all css files in a single file, give its name:
 {
     "plugins": [
         [
-            "css-modules-transform", {
+            "@apehead/babel-plugin-css-modules-transform", {
                 "extractCss": "./dist/stylesheets/combined.css"
             }
         ]
@@ -162,7 +162,7 @@ To extract all files in a single directory, give an object:
 {
     "plugins": [
         [
-            "css-modules-transform", {
+            "@apehead/babel-plugin-css-modules-transform", {
                 "extractCss": {
                     "dir": "./dist/stylesheets/",
                     "relativeRoot": "./src/",
