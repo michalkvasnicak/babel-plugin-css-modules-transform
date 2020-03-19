@@ -216,6 +216,25 @@ export default function transformCssModules({ types: t }) {
                 }
             },
 
+            // Side effects only (global styles)
+            // import './style.css';
+            ImportDeclaration(path, { file }) {
+                const { value } = path.node.source;
+
+                if (!matchExtensions.test(value) || path.node.specifiers.length) {
+                    return;
+                }
+
+                const requiringFile = file.opts.filename;
+                requireCssFile(requiringFile, value);
+
+                if (thisPluginOptions && thisPluginOptions.keepImport === true) {
+                    path.replaceWith(t.expressionStatement(t.callExpression(t.identifier('require'), [updateStyleSheetPath(t.stringLiteral(value), thisPluginOptions.importPathFormatter)])));
+                } else {
+                    path.remove();
+                }
+            },
+
             // const styles = require('./styles.css');
             CallExpression(path, { file }) {
                 const { callee: { name: calleeName }, arguments: args } = path.node;
