@@ -1,6 +1,6 @@
 {
   "name": "@apehead/babel-plugin-css-modules-transform",
-  "version": "1.6.2",
+  "version": "1.7.0",
   "description": "Transform required css modules so one can use generated class names.",
   "main": "build/index.js",
   "scripts": {
