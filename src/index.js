@@ -1,5 +1,4 @@
 import { resolve, dirname, isAbsolute } from 'path';
-
 // options resolvers
 import * as requireHooksOptions from './options_resolvers';
 
@@ -35,7 +34,37 @@ function findExpressionStatementChild(path, t) {
     return findExpressionStatementChild(parent, t);
 }
 
+
+export function isRelativePath(nodePath) {
+    return nodePath.match(/^\.?\.\//);
+}
+
+
+const resolveAliasPath = (path, aliasOptions = []) => {
+    if (isRelativePath(path)) {
+        return false;
+    }
+
+    if (!aliasOptions.length) {
+        return path;
+    }
+    let res = path;
+    aliasOptions.forEach(item => {
+        /* eslint-disable-next-line prefer-const */
+        const [[key, value]] = Object.entries(item);
+
+        if (path.indexOf(key) === 0) {
+            // remove the dots if the value is relative
+            res = path.replace(key, value.replace(/^\.?\.\//, ''));
+        }
+    });
+    return `${process.cwd()}/${res}`;
+};
+
 export default function transformCssModules({ types: t }) {
+
+    let thisPluginOptions = null;
+
     function resolveModulePath(filename) {
         const dir = dirname(filename);
         if (isAbsolute(dir)) return dir;
@@ -50,6 +79,7 @@ export default function transformCssModules({ types: t }) {
      * @returns {Array} array of class names
      */
     function requireCssFile(filepath, cssFile) {
+
         let filePathOrModuleName = cssFile;
 
         // only resolve path to file when we have a file path
@@ -57,14 +87,17 @@ export default function transformCssModules({ types: t }) {
             const from = resolveModulePath(filepath);
             filePathOrModuleName = resolve(from, filePathOrModuleName);
         }
-
         // css-modules-require-hooks throws if file is ignored
         try {
             return require(filePathOrModuleName);
         } catch (e) {
             // As a last resort, require the cssFile itself. This enables loading of CSS files from external deps
+            let cssFilePath = cssFile;
+            if (thisPluginOptions.alias) {
+                cssFilePath = resolveAliasPath(cssFile, thisPluginOptions.alias);
+            }
             try {
-                return require(cssFile);
+                return require(cssFilePath);
             } catch (f) {
                 return {}; // return empty object, this simulates result of ignored stylesheet file
             }
@@ -98,7 +131,6 @@ export default function transformCssModules({ types: t }) {
     }
 
     const cssMap = new Map();
-    let thisPluginOptions = null;
 
     const pluginApi = {
         manipulateOptions(options) {
@@ -120,10 +152,11 @@ export default function transformCssModules({ types: t }) {
             }
 
             const currentConfig = { ...defaultOptions, ...thisPluginOptions };
-            // this is not a css-require-ook config
+            // this is not a css-require-hook config
             delete currentConfig.extractCss;
             delete currentConfig.keepImport;
             delete currentConfig.importPathFormatter;
+            delete currentConfig.alias;
 
             // match file extensions, speeds up transform by creating one
             // RegExp ahead of execution time

@@ -317,4 +317,24 @@ describe('babel-plugin-css-modules-transform', () => {
             );
         });
     });
+
+    describe('using alias for css files', () => {
+        it('use alias for css file path',() => {
+            expect(transform('fixtures/useAlias.js', {
+                alias: [{'my-app': './test'}]
+            }).code).to.be.equal(readExpected('fixtures/useAlias.expected.js'));
+        })
+
+        it('use alias for css file path', () => {
+            expect(transform('fixtures/useAlias.js', {
+                alias: [{ 'my-app': 'test' }]
+            }).code).to.be.equal(readExpected('fixtures/useAlias.expected.js'));
+        })
+
+        it('use alias for css file path', () => {
+            expect(transform('fixtures/useAlias.js', {
+                alias: [{ 'my-app': './test/' }]
+            }).code).to.be.equal(readExpected('fixtures/useAlias.expected.js'));
+        })
+    })
 });
